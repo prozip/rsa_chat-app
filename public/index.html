@@ -13,11 +13,13 @@
 	<h1>RSA Chat App</h1>
 	<div id='wrapper'>
 		<div id='chooseUser'>
-			<label for="user">Choose a user:</label>
+			<label  for="user">
+			<h3>Choose a user:
 			<select id="userOption" onchange="refreshChat()"></select>
+			</h3>
+			</label>
 		</div>
-		<!-- <option value="volvo">Volvo</option> -->
-	</select>
+
 	<div id='userList'>
 		<h3>User list</h3>
 		<ul id="publicKeyList"></ul>
@@ -27,10 +29,8 @@
 	</div>
 	<div id="chatbox">
 		<ul id="yourMsg"></ul>
-		<li>helloooooo</li>
-		<li>huuuuuuuuuuuuuuuuuuu</li>
 	</div>
-	<form action="" id="form">
+	<form id="form">
 		<span id="name"></span> <input type="text" id="input">
 		<button>Gửi</button>
 	</form>
