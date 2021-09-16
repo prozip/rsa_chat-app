@@ -5,6 +5,8 @@ var userlist = []
 var id = -1
 var keyPair = null
 var msgList = []
+var sendCountList = []
+var receiveCountList = []
 var groupMsgList = []
 
 var name = prompt('Bạn tên gì?')
@@ -29,33 +31,64 @@ function generateKeyPair() {
     });
 }
 
+function increaseCount(index) {
+    if (sendCountList[index]) {
+        sendCountList[index] += 1
+    } else {
+        sendCountList[index] = 1
+    }
+}
+
 // send msg
 form.addEventListener('submit', (e) => {
     e.preventDefault()
     if (input.value) {
+        // send msg to group
         if (userlistNode.value == 'all') {
             socket.emit('groupChat', {
                 id,
                 msg: input.value
             })
         } else {
+            // send private msg
+            var receiveID = userlistNode.value
             msgList.push({
-                id: userlistNode.value + '%',
+                id: receiveID + '%',
                 msg: input.value
             })
-            let pem = userlist[userlistNode.value].publicKey
-            let publicKey = forge.pki.publicKeyFromPem(pem)
-            let encryptMsg = publicKey.encrypt(forge.util.encodeUtf8(input.value))
 
+            increaseCount(receiveID)
+
+
+            // =================================================================
+            // encrypt msg
+            let pem = userlist[receiveID].publicKey
+            let publicKey = forge.pki.publicKeyFromPem(pem)
+            let msg = {
+                msg: input.value,
+                count: sendCountList[receiveID]
+            }
+            let encryptMsg = publicKey.encrypt(forge.util.encodeUtf8(JSON.stringify(msg)))
+
+
+            // hash encryted msg
             let md = forge.md.sha256.create();
             md.update(encryptMsg);
+
+
+            // sign hashed encrtyed msg
             let signedMsg = keyPair.privateKey.sign(md)
+
+            // =================================================================
+
+
             socket.emit('privateChat', {
                 id,
                 encryptMsg,
-                receiveID: userlistNode.value,
+                receiveID,
                 signedMsg,
             })
+            console.log(sendCountList[receiveID])
         }
         input.value = ''
         refreshChat()
@@ -65,24 +98,52 @@ form.addEventListener('submit', (e) => {
 
 // received private msg
 socket.on("privateMsgFromServer", (data) => {
+
+
     let pem = userlist[data.sendID].publicKey
     let publicKey = forge.pki.publicKeyFromPem(pem)
 
+    // hash receive msg
     let md = forge.md.sha256.create();
     md.update(data.encryptMsg)
     let hashedMsg = md.digest().bytes();
 
     try {
+        // check sign key
         if (publicKey.verify(hashedMsg, data.signedMsg)) {
-            let msg = keyPair.privateKey.decrypt(data.encryptMsg)
-            msgList.push({
-                id: data.sendID,
-                msg: msg
-            })
-            refreshChat()
+            // decrypt hashed msg
+
+            let receiveObj = keyPair.privateKey.decrypt(data.encryptMsg)
+            let {msg, count} = JSON.parse(receiveObj) 
+            let sendID = data.sendID
+            // let msg = keyPair.privateKey.decrypt(data.encryptMsg)
+
+            console.log(msg, count)
+
+            // check count
+            if (!receiveCountList[sendID] | receiveCountList[sendID] < count) {
+                
+                if (receiveCountList[sendID] + 1 < count) {
+                    alert(`thiếu  ${count - receiveCountList[sendID] -1 } tin nhắn`)
+                }
+
+                // update count
+                receiveCountList[sendID] = count
+
+                // add to interface
+                msgList.push({
+                    id: sendID,
+                    msg: msg
+                })
+                refreshChat()
+            } else {
+                console.log(sendID)
+                alert("count ko hợp lệ")
+            }
+
         } else {
             console.log(data.sendID)
-            alert("tin nhan ko hop le")
+            alert("tin nhắn ko hợp lệ")
         }
     } catch (error) {
         alert(error)
