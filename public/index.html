@@ -13,29 +13,32 @@
 	<h1>RSA Chat App</h1>
 	<div id='wrapper'>
 		<div id='chooseUser'>
-			<label  for="user">
-			<h3>Choose a user:
-			<select id="userOption" onchange="refreshChat()"></select>
-			</h3>
+			<label for="user">
+				<h3>Choose a user:
+					<select id="userOption" onchange="refreshChat()"></select>
+				</h3>
 			</label>
 		</div>
+		
+		<div id='userList'>
+			<h3>User list</h3>
+			<ul id="publicKeyList"></ul>
+		</div>
+		<div class="yourMsg">
+			<h3>
+				<span style="float: left;">Your Message</span> 
+				<span style="float: right;" id="welcomeName">Your Message</span> 
+			</h3>
+		</div>
+		<div id="chatbox">
+			<ul id="yourMsg"></ul>
+		</div>
+		<form id="form" autocomplete="off">
+			<span id="name"></span> <input type="text" id="input" autocomplete="off">
+			<button type="submit">Gửi</button>
+		</form>
+	</div>
 
-	<div id='userList'>
-		<h3>User list</h3>
-		<ul id="publicKeyList"></ul>
-	</div>
-	<div class="yourMsg">
-		<h3>Your messages</h3>
-	</div>
-	<div id="chatbox">
-		<ul id="yourMsg"></ul>
-	</div>
-	<form id="form" autocomplete="off">
-		<span id="name"></span> <input type="text" id="input" autocomplete="off">
-		<button type="submit">Gửi</button>
-	</form>
-	</div>
-	
 </body>
 
 <script src="https://cdn.jsdelivr.net/npm/node-forge@0.7.0/dist/forge.min.js"></script>

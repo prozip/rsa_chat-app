@@ -10,8 +10,8 @@ var receiveCountList = []
 var groupMsgList = []
 
 var name = prompt('Bạn tên gì?')
-var nameSpan = document.querySelector('#name')
-nameSpan.innerText = name
+document.querySelector('#name').innerText = name
+document.getElementById("welcomeName").innerText = name
 
 const form = document.querySelector('#form')
 const input = document.querySelector('#input')
@@ -199,7 +199,8 @@ socket.on('getPublicKey', (userList) => {
 
     if (id == -1) {
         id = userList.length - 1
-        nameSpan.innerText = `${name} #${id}`
+        document.querySelector('#name').innerText = `${name} #${id}`
+        document.getElementById("welcomeName").innerText = `Welcome, ${name} #${id}` 
     }
 
     // group chat option
