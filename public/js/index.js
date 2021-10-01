@@ -61,7 +61,7 @@ form.addEventListener('submit', (e) => {
 
 
             // =================================================================
-            // encrypt msg
+            // encrypt msg #text1=({msg+CA}pubB)
             let pem = userlist[receiveID].publicKey
             let publicKey = forge.pki.publicKeyFromPem(pem)
             let msg = {
@@ -71,12 +71,12 @@ form.addEventListener('submit', (e) => {
             let encryptMsg = publicKey.encrypt(forge.util.encodeUtf8(JSON.stringify(msg)))
 
 
-            // hash encryted msg
+            // hash encryted msg #text2=hash(text1)
             let md = forge.md.sha256.create();
             md.update(encryptMsg);
 
 
-            // sign hashed encrtyed msg
+            // sign hashed encrtyed msg #text3=(text2)privA
             let signedMsg = keyPair.privateKey.sign(md)
 
             // =================================================================
@@ -84,9 +84,9 @@ form.addEventListener('submit', (e) => {
 
             socket.emit('privateChat', {
                 id,
-                encryptMsg,
+                encryptMsg, // #text1
                 receiveID,
-                signedMsg,
+                signedMsg, // #text3
             })
             console.log(sendCountList[receiveID])
         }
@@ -103,20 +103,21 @@ socket.on("privateMsgFromServer", (data) => {
     let pem = userlist[data.sendID].publicKey
     let publicKey = forge.pki.publicKeyFromPem(pem)
 
-    // hash receive msg
+    // hash receive msg #Text4=hash(text1)
     let md = forge.md.sha256.create();
     md.update(data.encryptMsg)
     let hashedMsg = md.digest().bytes();
 
     try {
         // check sign key
+        // #text4 ? #Text5=pubA(text3) 
         if (publicKey.verify(hashedMsg, data.signedMsg)) {
-            // decrypt hashed msg
+            // valid, decrypt hashed msg
+            // #Text6=privB(text1)
 
             let receiveObj = keyPair.privateKey.decrypt(data.encryptMsg)
             let {msg, count} = JSON.parse(receiveObj) 
             let sendID = data.sendID
-            // let msg = keyPair.privateKey.decrypt(data.encryptMsg)
 
             console.log(msg, count)
 
@@ -163,7 +164,9 @@ socket.on('groupChatFromServer', (data) => {
 // update chat msg
 function refreshChat() {
     msgListNode.innerHTML = ""
+    let chatType = document.getElementById("ChatType")
     if (userlistNode.value == "all") {
+        chatType.innerHTML = "THIS ROOM IS UNSECURE"
         groupMsgList.forEach(data => {
             let li = document.createElement('li')
             if (data.id == id) {
@@ -174,6 +177,7 @@ function refreshChat() {
             msgListNode.appendChild(li)
         })
     } else {
+        chatType.innerHTML = "This room is safe"
         msgList.forEach(data => {
             if (data.id == userlistNode.value | data.id == userlistNode.value + "%") {
                 let li = document.createElement('li')
@@ -200,7 +204,7 @@ socket.on('getPublicKey', (userList) => {
     if (id == -1) {
         id = userList.length - 1
         document.querySelector('#name').innerText = `${name} #${id}`
-        document.getElementById("welcomeName").innerText = `Welcome, ${name} #${id}` 
+        document.getElementById("welcomeName").innerText = `Chào mừng, ${name} #${id}` 
     }
 
     // group chat option

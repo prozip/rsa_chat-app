@@ -14,28 +14,31 @@
 	<div id='wrapper'>
 		<div id='chooseUser'>
 			<label for="user">
-				<h3>Choose a user:
+				<h3>Chọn người dùng:
 					<select id="userOption" onchange="refreshChat()"></select>
 				</h3>
 			</label>
 		</div>
 		
 		<div id='userList'>
-			<h3>User list</h3>
+			<h3>Danh sách người dùng</h3>
 			<ul id="publicKeyList"></ul>
 		</div>
 		<div class="yourMsg">
 			<h3>
-				<span style="float: left;">Your Message</span> 
-				<span style="float: right;" id="welcomeName">Your Message</span> 
+				<span style="float: left;">Hộp thoại</span> 
+				<span style="float: right;" id="welcomeName">...</span> 
 			</h3>
 		</div>
 		<div id="chatbox">
 			<ul id="yourMsg"></ul>
 		</div>
 		<form id="form" autocomplete="off">
-			<span id="name"></span> <input type="text" id="input" autocomplete="off">
-			<button type="submit">Gửi</button>
+			<div style="float: left;">
+				<span id="name"></span> <input type="text" id="input" autocomplete="off">
+				<button type="submit">Gửi</button>
+			</div>
+			<span id="ChatType" class="ChatType" style="float: right;">THIS ROOM IS UNSECURE</span>
 		</form>
 	</div>
 
